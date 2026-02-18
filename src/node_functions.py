@@ -50,3 +50,55 @@ def extract_markdown_images(text):
 def extract_markdown_links(text):
 	matches = re.findall(r"(?<!!)\[([^\[\]]*)\]\(([^\(\)]*)\)", text)
 	return matches
+
+
+def split_nodes_image(old_nodes):
+	new_nodes = []
+	for node in old_nodes:
+		matches = extract_markdown_images(node.text)
+		if len(matches) == 0 or node.text_type != TextType.TEXT:
+			new_nodes.append(node)
+			continue
+		text = node.text
+		for match in matches:
+			segments = text.split(f"![{match[0]}]({match[1]})", 1)
+			if len(segments) != 2:
+				raise ValueError("invalid markdown, image section not closed")
+			if segments[0] != "":
+				new_nodes.append(TextNode(segments[0], TextType.TEXT))
+			new_nodes.append(TextNode(match[0], TextType.IMAGE, match[1]))
+			text = segments[1]
+		if text != "":
+			new_nodes.append(TextNode(text, TextType.TEXT))
+	return new_nodes
+
+
+def split_nodes_link(old_nodes):
+	new_nodes = []
+	for node in old_nodes:
+		matches = extract_markdown_links(node.text)
+		if len(matches) == 0 or node.text_type != TextType.TEXT:
+			new_nodes.append(node)
+			continue
+		text = node.text
+		for match in matches:
+			segments = text.split(f"[{match[0]}]({match[1]})", 1)
+			if len(segments) != 2:
+				raise ValueError("invalid markdown, link section not closed")
+			if segments[0] != "":
+				new_nodes.append(TextNode(segments[0], TextType.TEXT))
+			new_nodes.append(TextNode(match[0], TextType.LINK, match[1]))
+			text = segments[1]
+		if text != "":
+			new_nodes.append(TextNode(text, TextType.TEXT))
+	return new_nodes
+
+
+def text_to_textnodes(text):
+	node = TextNode(text, TextType.TEXT)
+	new_nodes = split_nodes_image([node])
+	new_nodes = split_nodes_link(new_nodes)
+	new_nodes = split_nodes_delimiter(new_nodes, "**", TextType.BOLD)
+	new_nodes = split_nodes_delimiter(new_nodes, "_", TextType.ITALIC)
+	new_nodes = split_nodes_delimiter(new_nodes, "`", TextType.CODE)
+	return new_nodes
