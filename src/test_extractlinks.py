@@ -1,6 +1,6 @@
 import unittest
 
-from node_functions import *
+from inline_markdown import *
 
 class TestExtractLinks(unittest.TestCase):
     def test_ExtractMDImage_Single(self):

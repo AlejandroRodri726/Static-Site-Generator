@@ -1,7 +1,7 @@
 import unittest
 
 from textnode import *
-from node_functions import *
+from inline_markdown import *
 
 
 
@@ -35,7 +35,7 @@ class TestTextNode(unittest.TestCase):
         node2 = TextNode("I'M LOUD!", TextType.BOLD)
         self.assertIsNot(node.text_type, node2.text_type)
 
-    
+
 
 
 class TestTextNodeToHTMLNode(unittest.TestCase):
@@ -60,6 +60,7 @@ class TestTextNodeToHTMLNode(unittest.TestCase):
         html_node = text_node_to_html_node(node)
         self.assertEqual(html_node.tag, "b")
         self.assertEqual(html_node.value, "This is bold")
+
 
 
 
