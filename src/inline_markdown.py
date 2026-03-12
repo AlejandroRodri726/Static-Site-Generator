@@ -75,7 +75,7 @@ def split_nodes_link(old_nodes):
 	new_nodes = []
 	for node in old_nodes:
 		matches = extract_markdown_links(node.text)
-		if len(matches) == 0 or node.text_type != TextType.TEXT:
+		if node.text_type != TextType.TEXT or len(matches) == 0:
 			new_nodes.append(node)
 			continue
 		text = node.text
